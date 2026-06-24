@@ -28,6 +28,10 @@ _Avoid_: Classification check, category verification
 A single turn when classification is Unknown, asking one category-disambiguating question to resolve the Prompt Category before Category Confirmation and clarification begin.
 _Avoid_: Unknown flow, disambiguation step
 
+**Disambiguation Response**:
+The structured agent output during Category Disambiguation — not a Refined Prompt. Uses the Unknown category's section schema (Current Understanding, Possible Categories, Best Guess, One Question).
+_Avoid_: Disambiguation prompt, Unknown output
+
 **Category Switch**:
 When the user changes the Prompt Category mid-conversation. Prior clarification answers carry over where still relevant; only category-specific gaps are re-asked.
 _Avoid_: Reclassification, category change
@@ -65,7 +69,7 @@ The shared prompt-writing rules applied to every Refined Prompt, regardless of c
 _Avoid_: Base skill, prompt-writing-core
 
 **Category Writing Skill**:
-The per-category guidance that defines clarification priorities and the exact output sections for a Refined Prompt.
+The per-category guidance that defines clarification priorities and the exact output sections — a Refined Prompt for real categories, a Disambiguation Response for Unknown.
 _Avoid_: Category skill, prompt template
 
 **Prompt Writer Agent**:
