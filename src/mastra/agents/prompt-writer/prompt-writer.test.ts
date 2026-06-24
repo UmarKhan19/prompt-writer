@@ -1,23 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { mastra } from '../../index';
+import { createTestMastra } from '../../create-mastra';
 import { loadPromptWriterInstructions } from './load-instructions';
-
-const EXPECTED_WRITING_SKILLS = [
-  'prompt-writing-core',
-  'coding-prompt',
-  'general-task-prompt',
-  'agent-prompt',
-  'unknown-prompt',
-] as const;
+import { getPromptWriterWorkspaceSkillPaths } from './workspace';
 
 describe('Prompt Writer Agent', () => {
-  test('is registered on the Mastra instance', () => {
+  test('is registered on the Mastra instance', async () => {
+    const mastra = await createTestMastra();
     const agent = mastra.getAgentById('prompt-writer');
     expect(agent).toBeDefined();
     expect(agent.id).toBe('prompt-writer');
   });
 
   test('workspace exposes all five Writing Skills for discovery', async () => {
+    const mastra = await createTestMastra();
     const agent = mastra.getAgentById('prompt-writer');
     const workspace = await agent.getWorkspace();
     expect(workspace).toBeDefined();
@@ -25,10 +20,11 @@ describe('Prompt Writer Agent', () => {
     const skills = await workspace!.skills.list();
     const skillNames = skills.map((skill) => skill.name).sort();
 
-    expect(skillNames).toEqual([...EXPECTED_WRITING_SKILLS].sort());
+    expect(skillNames).toEqual([...getPromptWriterWorkspaceSkillPaths()].sort());
   });
 
   test('uses thread-scoped memory for conversations', async () => {
+    const mastra = await createTestMastra();
     const agent = mastra.getAgentById('prompt-writer');
     const memory = await agent.getMemory();
 
@@ -72,6 +68,14 @@ describe('Prompt Writer Agent', () => {
     expect(instructions).toMatch(/Forced Proceed|proceed before all ambiguity/i);
     expect(instructions).toMatch(/verification or guardrail/i);
     expect(instructions).toMatch(/no external production notes|Do not add external production notes/i);
+  });
+
+  test('system instructions document Unknown Forced Proceed category fallback', () => {
+    const instructions = loadPromptWriterInstructions();
+
+    expect(instructions).toMatch(/Category Disambiguation/i);
+    expect(instructions).toMatch(/general-task-prompt/);
+    expect(instructions).toMatch(/proceed.*without.*categor|without choosing a category/i);
   });
 
   test('system instructions preserve category and section schema during Revision', () => {
