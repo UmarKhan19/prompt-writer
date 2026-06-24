@@ -17,7 +17,8 @@
   "scripts": {
     "dev": "mastra dev",
     "build": "mastra build",
-    "start": "mastra start"
+    "start": "mastra start",
+    "test": "bun test src/mastra/agents/prompt-writer"
   },
   "dependencies": {
     "@mastra/core": "^1.45.0",
