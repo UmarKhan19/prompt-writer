@@ -43,7 +43,7 @@ If both seem plausible, ask the user whether they are using an AI coding agent t
 
 ## Clarification Priorities
 
-Ask one question at a time. Prioritize missing information in this order:
+Prioritize missing information in this order:
 
 1. Agent executor and environment: Codex, opencode, Cursor, Claude Code, local shell, remote workspace, etc.
 2. Exact objective

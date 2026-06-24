@@ -20,9 +20,11 @@ Use `unknown-prompt` when:
 - the prompt lacks enough context to know who or what will consume the refined prompt
 - the user is asking about prompt-writing strategy rather than asking for a refined prompt
 
-## Clarification Priority
+## Clarification Priorities
 
-Ask one question at a time. The first question should identify the intended consumer of the refined prompt.
+Prioritize missing information in this order:
+
+1. Intended consumer of the refined prompt (general chatbot, human/developer, or AI coding agent)
 
 Examples:
 
@@ -54,7 +56,3 @@ When using this category, the response must use these sections, in this order:
 - `Possible Categories` must list the relevant categories and what each would mean.
 - `Best Guess` must state the current classification if there is one.
 - `One Question` must ask exactly one category-disambiguating question.
-
-## If The User Forces A Prompt Anyway
-
-If the user says to proceed without choosing a category, use `general-task-prompt` as the fallback unless the prompt clearly involves software execution. State the uncertainty inside the refined prompt as a verification requirement, not as an external note.

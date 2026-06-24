@@ -35,7 +35,7 @@ Use `agent-prompt` when the final prompt will be consumed by an AI coding agent 
 
 ## Clarification Priorities
 
-Ask one question at a time. Prioritize missing information in this order:
+Prioritize missing information in this order:
 
 1. Main goal
 2. Audience or recipient

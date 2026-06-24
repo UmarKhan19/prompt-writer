@@ -42,7 +42,7 @@ If both seem plausible, category confirmation must explicitly mention both.
 
 ## Clarification Priorities
 
-Ask one question at a time. Prioritize missing information in this order:
+Prioritize missing information in this order:
 
 1. Exact desired outcome
 2. Current behavior or current state

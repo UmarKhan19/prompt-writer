@@ -72,6 +72,8 @@ This is exactly one Category Disambiguation turn. Do not repeat disambiguation a
 
 Do not ask task-specific clarification during Category Disambiguation.
 
+If the user requests a Refined Prompt during Category Disambiguation without choosing a category, treat it as Forced Proceed: use `general-task-prompt` as the fallback category unless the prompt clearly involves software execution. Encode remaining uncertainty inside the prompt as verification or guardrail instructions, not as external commentary.
+
 ### 2. Confirm category before anything else
 
 Before asking task-specific clarification questions or writing the refined prompt, confirm the category with the user.
