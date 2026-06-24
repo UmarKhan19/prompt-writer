@@ -42,3 +42,12 @@ dist
 *.db-*
 .netlify
 .vercel
+
+# mastra and local db files
+
+mastra.duckdb
+mastra.duckdb.wal
+
+# Coding Agents' files
+.scratch/
+docs/agents/

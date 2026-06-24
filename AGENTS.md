@@ -13,3 +13,17 @@ Load the `mastra` skill BEFORE any Mastra work. Never rely on cached knowledge â
 
 - [Mastra Documentation](https://mastra.ai/llms.txt)
 - [Skills Discovery](https://mastra.ai/.well-known/skills/index.json)
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical triage roles use default label strings (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout: `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
