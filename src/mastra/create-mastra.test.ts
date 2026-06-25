@@ -2,7 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import { createMockModel } from '@mastra/core/test-utils/llm-mock';
 import { LibSQLStore } from '@mastra/libsql';
 import { createPromptWriterAgent } from './agents/prompt-writer';
-import { createMastra, createTestMastra } from './create-mastra';
+import { createMastra } from './create-mastra';
+import { createTestMastra } from './create-test-mastra';
 import { promptWriterScorers } from './agents/prompt-writer/scorers';
 
 const EXPECTED_WRITING_SKILLS = [

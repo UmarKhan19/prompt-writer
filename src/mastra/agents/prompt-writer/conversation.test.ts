@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { createMockModel } from '@mastra/core/test-utils/llm-mock';
-import { createMastra, createTestMastra } from '../../create-mastra';
+import { createMastra } from '../../create-mastra';
+import { createTestMastra } from '../../create-test-mastra';
 import { createPromptWriterAgent } from './index';
 import {
   adjacentCategoryMentionScorer,

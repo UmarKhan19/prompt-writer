@@ -1,4 +1,4 @@
-import { createTestMastra } from '../../create-mastra';
+import { createTestMastra } from '../../create-test-mastra';
 import { createPromptWriterAgent } from './index';
 import { createScriptedMockModel } from './test-utils';
 

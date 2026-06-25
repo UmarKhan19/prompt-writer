@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createTestMastra } from '../../create-mastra';
+import { createTestMastra } from '../../create-test-mastra';
 import { loadPromptWriterInstructions } from './load-instructions';
 import { getPromptWriterWorkspaceSkillPaths } from './workspace';
 
