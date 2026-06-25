@@ -36,6 +36,7 @@ output.txt
 node_modules
 dist
 .mastra
+src/mastra/public/src/
 .env.development
 .env
 *.db
