@@ -1,9 +1,6 @@
 import { Mastra } from '@mastra/core/mastra';
 import type { Config } from '@mastra/core/mastra';
-import { MastraCompositeStore } from '@mastra/core/storage';
-import { DuckDBStore } from '@mastra/duckdb';
-import { VercelDeployer } from '@mastra/deployer-vercel';
-import { LibSQLStore } from '@mastra/libsql';
+import { PostgresStore } from '@mastra/pg';
 import { PinoLogger } from '@mastra/loggers';
 import {
   Observability,
@@ -19,8 +16,20 @@ export type CreateMastraOptions = Pick<
   'storage' | 'observability' | 'scorers' | 'agents'
 >;
 
-function resolveAgents(agents?: CreateMastraOptions['agents']) {
+export type MastraConfigWithoutDeployer = Omit<Config, 'deployer'>;
+
+export function resolveAgents(agents?: CreateMastraOptions['agents']) {
   return agents ?? { promptWriterAgent };
+}
+
+function requireDatabaseUrl(): string {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error(
+      'DATABASE_URL is required. Add your Neon connection string to .env — see .env.example.',
+    );
+  }
+  return connectionString;
 }
 
 async function createProductionStorage(
@@ -30,15 +39,9 @@ async function createProductionStorage(
     return storage;
   }
 
-  return new MastraCompositeStore({
-    id: 'composite-storage',
-    default: new LibSQLStore({
-      id: 'mastra-storage',
-      url: 'file:./mastra.db',
-    }),
-    domains: {
-      observability: await new DuckDBStore().getStore('observability'),
-    },
+  return new PostgresStore({
+    id: 'mastra-storage',
+    connectionString: requireDatabaseUrl(),
   });
 }
 
@@ -57,13 +60,10 @@ function createProductionObservability() {
   });
 }
 
-export async function createMastra(
+export async function buildMastraConfig(
   options: CreateMastraOptions = {},
-): Promise<Mastra> {
-  return new Mastra({
-    deployer: new VercelDeployer({
-      studio: true,
-    }),
+): Promise<MastraConfigWithoutDeployer> {
+  return {
     agents: resolveAgents(options.agents),
     storage: await createProductionStorage(options.storage),
     logger: new PinoLogger({
@@ -72,23 +72,11 @@ export async function createMastra(
     }),
     observability: options.observability ?? createProductionObservability(),
     scorers: options.scorers ?? promptWriterScorers,
-  });
+  };
 }
 
-export async function createTestMastra(
-  overrides: Partial<CreateMastraOptions> = {},
+export async function createMastra(
+  options: CreateMastraOptions = {},
 ): Promise<Mastra> {
-  return new Mastra({
-    agents: resolveAgents(overrides.agents),
-    storage:
-      overrides.storage ??
-      new LibSQLStore({
-        id: 'prompt-writer-test-storage',
-        url: ':memory:',
-      }),
-    scorers: overrides.scorers,
-    ...(overrides.observability !== undefined
-      ? { observability: overrides.observability }
-      : {}),
-  });
+  return new Mastra(await buildMastraConfig(options));
 }
