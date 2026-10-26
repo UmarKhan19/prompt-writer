@@ -94,4 +94,4 @@ Scenario definitions live in [`src/mastra/agents/prompt-writer/conversation-scen
 | `bun run build` | Production build |
 | `bun run start` | Run the built server |
 
-Deploy: [`VercelDeployer`](./src/mastra/create-mastra.ts) is configured with `studio: true`. Run `bun run build` before deploying to Vercel.
+Deploy: [`VercelDeployer`](./src/mastra/create-mastra.ts) is configured with `studio: true`. The configured public homepage, https://prompt-writer-lemon.vercel.app, renders Mastra Studio, a developer console, not a verified product demo. Run `bun run build` before deploying to Vercel.
