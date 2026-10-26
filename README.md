@@ -23,25 +23,23 @@ In this project, your input is a **Source Prompt** and the deliverable is a **Re
 | **Agent Prompt** | The prompt will be consumed by an AI coding agent with tool and file access | AI coding agent |
 | **Unknown** | Classification is unclear; triggers a single category-disambiguating question | — |
 
-## Quickstart
+## Local setup
 
-**Prerequisites:** [Bun](https://bun.sh), Node ≥ 22.13.0
+**Prerequisites:** [Bun](https://bun.sh), Node.js ≥ 22.13.0, and a reachable PostgreSQL database. Runtime storage uses Mastra's `PostgresStore`; `DATABASE_URL` is required even for local development. The in-memory LibSQL store is only configured by the test factory, not by `bun run dev`.
 
 ```shell
 cp .env.example .env
+# Set DATABASE_URL to a PostgreSQL connection string.
+# The example uses Neon; a local PostgreSQL instance also works.
 bun install
 bun run dev
 ```
 
-Open [http://localhost:4111](http://localhost:4111) for Mastra Studio and chat with the Prompt Writer Agent.
+The project has no checked-in SQL schema or migration files. Runtime configuration passes the connection string to Mastra's PostgreSQL storage adapter. This repository does not define a separate database initialization command.
 
-### Model configuration
+Set `OPENCODE_API_KEY` for the OpenCode fallback model, which is always in the retry chain. To choose a primary model, set `PROMPT_WRITER_MODEL` (or Mastra's `MASTRA_MODEL`) and the matching provider key, for example `OPENAI_API_KEY` for `openai/gpt-4.1-mini`. If neither model variable is set, the agent selects a default from the first configured provider key. See [`.env.example`](./.env.example) and [`resolve-model.ts`](./src/mastra/agents/prompt-writer/resolve-model.ts).
 
-Set `PROMPT_WRITER_MODEL` to the model you want (e.g. `openai/gpt-4.1-mini`). The provider prefix must match a provider API key in the same file — `PROMPT_WRITER_MODEL` selects the model ID; it does not replace credentials.
-
-`OPENCODE_API_KEY` is also required. A free OpenCode model is always in the retry chain as a fallback.
-
-Without `PROMPT_WRITER_MODEL`, the agent auto-detects a default from whichever provider key is set. See [`.env.example`](./.env.example) for all supported providers.
+`bun run dev` opens Mastra Studio at [http://localhost:4111](http://localhost:4111). Studio is Mastra's developer console. This repository does not include a custom product frontend. The configured public URL, [prompt-writer-lemon.vercel.app](https://prompt-writer-lemon.vercel.app), was observed opening Mastra Studio, not a verified product workflow. No login, prompt-generation flow, or authorization behavior is claimed as verified.
 
 ## Testing
 
@@ -49,30 +47,25 @@ Without `PROMPT_WRITER_MODEL`, the agent auto-detects a default from whichever p
 bun run test
 ```
 
-Most tests use scripted conversation scenarios — deterministic, no API key required. They are the CI contract for multi-turn behavior.
+Most tests use scripted model responses and do not require provider API keys. Seven authored conversation scenarios cover category confirmation, clarification, delivery, forced proceed, revisions, and category switching; contract scorers check turn behavior and output section order. These are test definitions, not a claim that the suite passed in this documentation update.
 
-One live-model smoke test exercises the real agent against actual system instructions and writing skills. It needs `PROMPT_WRITER_MODEL` (or a provider key) and `OPENCODE_API_KEY`.
-
-Scenario definitions live in [`src/mastra/agents/prompt-writer/conversation-scenarios.ts`](./src/mastra/agents/prompt-writer/conversation-scenarios.ts). See [ADR 0002](./docs/adr/0002-scripted-scenarios-as-ci-contract.md) for the rationale.
+Scenario definitions live in [`conversation-scenarios.ts`](./src/mastra/agents/prompt-writer/conversation-scenarios.ts); the runner injects scripted model replies and isolated in-memory test storage in [`run-conversation-scenario.ts`](./src/mastra/agents/prompt-writer/run-conversation-scenario.ts) and [`create-test-mastra.ts`](./src/mastra/create-test-mastra.ts). Tests and scorers are under [`src/mastra/agents/prompt-writer/`](./src/mastra/agents/prompt-writer/). See [ADR 0002](./docs/adr/0002-scripted-scenarios-as-ci-contract.md) for the rationale.
 
 ## Project map
 
 | Path | What it is |
 | --- | --- |
 | [`src/mastra/agents/prompt-writer/`](./src/mastra/agents/prompt-writer/) | Prompt Writer Agent — instructions, scorers, tests, conversation runner |
-| [`src/mastra/agents/prompt-writer/system-instructions.md`](./src/mastra/agents/prompt-writer/system-instructions.md) | Conversation flow and agent behavior |
+| [`src/mastra/agents/prompt-writer/system-instructions.md`](./src/mastra/agents/prompt-writer/system-instructions.md) | Authored conversation flow and agent behavior |
 | [`src/mastra/agents/prompt-writer/scorers/`](./src/mastra/agents/prompt-writer/scorers/) | Function scorers that enforce turn discipline and output contracts |
 | [`src/mastra/agents/prompt-writer/conversation-scenarios.ts`](./src/mastra/agents/prompt-writer/conversation-scenarios.ts) | Scripted multi-turn scenario definitions |
 | [`src/mastra/agents/prompt-writer/run-conversation-scenario.ts`](./src/mastra/agents/prompt-writer/run-conversation-scenario.ts) | Scenario runner and step assertions |
 | [`src/mastra/agents/prompt-writer/category-schema.ts`](./src/mastra/agents/prompt-writer/category-schema.ts) | Parses Refined Prompt section order from Category Writing Skills |
 | [`src/mastra/writing-skills/`](./src/mastra/writing-skills/) | Core and Category Writing Skills (`SKILL.md` per category) |
-| [`src/mastra/create-mastra.ts`](./src/mastra/create-mastra.ts) | Mastra factory — storage, observability, Vercel deployer |
-| [`src/mastra/index.ts`](./src/mastra/index.ts) | Mastra entry point and agent registration |
+| [`src/mastra/create-mastra.ts`](./src/mastra/create-mastra.ts) | Runtime config, required PostgreSQL storage, observability |
+| [`src/mastra/index.ts`](./src/mastra/index.ts) | Mastra entry point and Studio-enabled Vercel deployer |
 | [`CONTEXT.md`](./CONTEXT.md) | Domain glossary — canonical terms for prompts, categories, and flow |
 | [`docs/adr/`](./docs/adr/) | Architecture decision records |
-| [`docs/agents/domain.md`](./docs/agents/domain.md) | How to read domain docs before exploring the codebase |
-| [`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md) | Local markdown issue and PRD conventions |
-| [`docs/agents/triage-labels.md`](./docs/agents/triage-labels.md) | Triage role strings for issue files |
 
 ## Making changes
 
@@ -84,14 +77,13 @@ Scenario definitions live in [`src/mastra/agents/prompt-writer/conversation-scen
 
 - [CONTEXT.md](./CONTEXT.md) — ubiquitous language for this project
 - [docs/adr/](./docs/adr/) — why skills own section schemas, scripted scenarios are the CI contract, and more
-- [docs/agents/domain.md](./docs/agents/domain.md) — domain doc layout and reading order
 
 ## Mastra tooling
 
 | Command | What it does |
 | --- | --- |
 | `bun run dev` | Start dev server; Mastra Studio at [http://localhost:4111](http://localhost:4111) |
-| `bun run build` | Production build |
-| `bun run start` | Run the built server |
+| `bun run build` | Sync public Markdown assets, then build with Mastra |
+| `bun run start` | Run the built Mastra server |
 
-Deploy: [`VercelDeployer`](./src/mastra/create-mastra.ts) is configured with `studio: true`. The configured public homepage, https://prompt-writer-lemon.vercel.app, renders Mastra Studio, a developer console, not a verified product demo. Run `bun run build` before deploying to Vercel.
+The package scripts also define `bun run test` for the Prompt Writer test directory. Deployment uses Mastra's [`VercelDeployer`](./src/mastra/index.ts) with `studio: true`; Vercel deployment status does not establish that an end-user product workflow works.
